@@ -1,0 +1,165 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: #2f2f2f;
+  text-align: left;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.control-group label {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+textarea,
+select,
+input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background-color: #333;
+  color: white;
+  box-sizing: border-box;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  color: rgba(255, 255, 255, 0.87);
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.result-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+#qr-code-container {
+  width: 300px;
+  height: 300px;
+  background-color: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+#qr-code-container svg,
+#qr-code-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* --- The Final, Correct CSS Grid Solution for HTML QR Code --- */
+
+#qr-code-container .qrcode {
+    display: grid;
+    /* The --qr-total-modules variable is set by JavaScript in image-renderer.ts */
+    grid-template-columns: repeat(var(--qr-total-modules), 1fr);
+    grid-template-rows: repeat(var(--qr-total-modules), 1fr);
+
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1; /* Ensures the grid container is square */
+
+    /* Background for the QR code area, including margins */
+    background-color: #fff;
+    box-sizing: border-box;
+    padding: 0; /* No padding here, margins are part of the grid */
+
+    /* DEBUG STYLES - REMOVED */
+}
+
+#qr-code-container .qr-module {
+    /* Default module color (white) */
+    background-color: #fff;
+    /* DEBUG STYLES - REMOVED */
+}
+
+#qr-code-container .qr-module.black {
+    background-color: #000;
+}
+
+/* Removed all previous table-related rules */
+
+#error-container {
+  margin-top: 1rem;
+  color: #ff6b6b;
+  font-weight: bold;
+  min-height: 24px;
+}
+
+#download-btn {
+  margin-top: 1rem;
+}
+
+.hidden {
+  display: none;
+}

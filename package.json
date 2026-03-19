@@ -1,19 +1,28 @@
 {
-  "name": "qr-code",
+  "name": "qr-code-generator",
   "version": "1.0.0",
-  "description": "",
-  "main": "qr-creator.js",
+  "description": "A simple QR code generator library",
+  "main": "./dist/lib/qr-code-generator.js",
+  "module": "./dist/lib/qr-code-generator.mjs",
+  "types": "./dist/lib/types.d.ts",
   "scripts": {
-    "build": "webpack --mode=production",
-    "watch": "webpack --watch --mode=development",
-    "start": "webpack serve --mode=development --open"
+    "dev": "vite --config vite.config.demo.ts",
+    "build:lib": "vite build --config vite.config.lib.ts && tsc --emitDeclarationOnly --outDir dist/lib",
+    "build:demo": "vite build --config vite.config.demo.ts",
+    "preview": "vite preview --config vite.config.demo.ts"
   },
   "author": "",
   "license": "ISC",
-  "keywords": [],
+  "keywords": [
+    "qr-code",
+    "generator"
+  ],
   "devDependencies": {
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.11.1"
-  }
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  },
+  "files": [
+    "dist/lib"
+  ]
 }

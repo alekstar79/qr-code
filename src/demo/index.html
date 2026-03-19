@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>QR Code Generator</h1>
+    <div class="container">
+      <div class="controls">
+        <div class="control-group">
+          <label for="text-input">Text to encode</label>
+          <textarea id="text-input">https://github.com/alekstar79</textarea>
+        </div>
+
+        <div class="control-group">
+          <label for="mode-select">Encoding Mode</label>
+          <select id="mode-select">
+            <option value="-1" selected>Auto</option>
+            <option value="1">Numerical</option>
+            <option value="2">Alphanumeric</option>
+            <option value="4">Binary (UTF8)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="eccl-select">Error Correction Level</label>
+          <select id="eccl-select">
+            <option value="-1">Auto</option>
+            <option value="1">Low (L)</option>
+            <option value="0">Medium (M)</option>
+            <option value="3">Quartile (Q)</option>
+            <option value="2" selected>High (H)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="version-input">Version (1-40, -1 for Auto)</label>
+          <input type="number" id="version-input" value="-1" min="-1" max="40">
+        </div>
+
+        <div class="control-group">
+          <label for="mask-input">Mask Pattern (0-7, -1 for Auto)</label>
+          <input type="number" id="mask-input" value="-1" min="-1" max="7">
+        </div>
+
+        <div class="control-group">
+          <label for="image-format-select">Image Format</label>
+          <select id="image-format-select">
+            <option value="SVG" selected>SVG</option>
+            <option value="PNG">PNG</option>
+            <option value="HTML">HTML</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="modsize-input">Module Size (px)</label>
+          <input type="number" id="modsize-input" value="8" min="1">
+        </div>
+
+        <div class="control-group">
+          <label for="margin-input">Margin (modules)</label>
+          <input type="number" id="margin-input" value="4" min="0">
+        </div>
+
+        <button id="generate-btn">Generate QR Code</button>
+      </div>
+      <div class="result-area">
+        <div id="qr-code-container"></div>
+        <div id="error-container"></div>
+        <button id="download-btn" class="hidden">Download</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/main.ts"></script>
+</body>
+</html>
