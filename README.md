@@ -2,7 +2,7 @@
 <p align="center">QRCreator.js</p>
 <p align="center">Make now QR-code.</p>
 <p align="center">
- <img src="src/assets/review.gif" alt="">
+ <img src="review.gif" alt="">
 </p>
 
 [ДЕМО](https://alekstar79.github.io/qr-code)

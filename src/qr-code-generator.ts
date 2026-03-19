@@ -1,4 +1,4 @@
-import { Eccl, Mask, Mode } from './types'
+import { Eccl, Mask, Mode } from './types.ts'
 
 import {
   bitsFieldDataQuantity,
@@ -16,7 +16,7 @@ import {
   MODE_TERMINATOR,
   PENALTY,
   ALPHANUMERIC_MAP,
-} from './constants'
+} from './constants.ts'
 
 export class QRCodeGenerator {
   public readonly text: string
@@ -342,7 +342,8 @@ export class QRCodeGenerator {
           if (matrix[j][i] === null) {
             const bit = (codewordsQR[k >> 3] >> (~k & 7)) & 1
 
-            matrix[j][i] = bit ^ maskFunc(j, i)
+            // MASKFUNCS возвращают boolean; битовая операция XOR ожидает number (0/1)
+            matrix[j][i] = bit ^ (maskFunc(j, i) ? 1 : 0)
 
             if (isMaskAuto) {
               mapData[j][i] = bit
@@ -366,7 +367,8 @@ export class QRCodeGenerator {
         mapData.forEach((aY, j) => {
           aY.forEach((el, i) => {
             if (el !== null) {
-              matrix[j][i] = el ^ maskFunc(j, i)
+              // MASKFUNCS возвращают boolean; битовая операция XOR ожидает number (0/1)
+              matrix[j][i] = el ^ (maskFunc(j, i) ? 1 : 0)
             }
           })
         })
@@ -391,7 +393,8 @@ export class QRCodeGenerator {
       ).mask
 
       reMask(mask)
-      this.mask = mask
+
+      this.mask = mask as Mask
     }
 
     this.matrix = matrix
@@ -455,6 +458,7 @@ export class QRCodeGenerator {
 
       for (let x = 1; x < matrixSize; ++x) {
         qtyBlack += rowCells[x] || 0
+
         if (
           rowCells[x] === rowCells[x - 1] &&
           rowCells[x] === nextRowCells[x] &&

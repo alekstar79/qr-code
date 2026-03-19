@@ -1,28 +1,33 @@
 {
-  "name": "qr-code-generator",
-  "version": "1.0.0",
+  "name": "@alekstar79/qr-code-generator",
+  "version": "2.0.0",
+  "type": "module",
   "description": "A simple QR code generator library",
-  "main": "./dist/lib/qr-code-generator.js",
-  "module": "./dist/lib/qr-code-generator.mjs",
-  "types": "./dist/lib/types.d.ts",
-  "scripts": {
-    "dev": "vite --config vite.config.demo.ts",
-    "build:lib": "vite build --config vite.config.lib.ts && tsc --emitDeclarationOnly --outDir dist/lib",
-    "build:demo": "vite build --config vite.config.demo.ts",
-    "preview": "vite preview --config vite.config.demo.ts"
-  },
+  "main": "./lib/qr-code-generator.js",
+  "module": "./lib/qr-code-generator.mjs",
+  "types": "./lib/types.d.ts",
   "author": "",
   "license": "ISC",
   "keywords": [
     "qr-code",
     "generator"
   ],
+  "scripts": {
+    "dev": "vite --config vite.config.ts",
+    "build:lib": "vite build --config vite.config.lib.ts && tsc --declaration --emitDeclarationOnly --outDir lib",
+    "build:demo": "vite build --config vite.config.ts",
+    "preview": "vite preview --config vite.config.ts",
+    "test": "vitest run"
+  },
   "devDependencies": {
     "@types/node": "^20.12.12",
+    "jsdom": "^24.1.3",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.11",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^2.1.9"
   },
   "files": [
-    "dist/lib"
+    "lib"
   ]
 }

@@ -1,4 +1,4 @@
-import { ImageFormat } from './types'
+import { ImageFormat } from './types.ts'
 
 export class ImageRenderer {
   private readonly matrix: (number | null)[][]

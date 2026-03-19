@@ -7,10 +7,10 @@ import {
   MODE_ALPHANUMERIC,
   MODE_NUMERIC,
   MODE_OCTET,
-} from './constants'
-import { ImageRenderer } from './image-renderer'
-import { QRCodeGenerator } from './qr-code-generator'
-import { Eccl, ImageFormat, Mode, QROptions, QRCode } from './types'
+} from './constants.ts'
+import { ImageRenderer } from './image-renderer.ts'
+import { QRCodeGenerator } from './qr-code-generator.ts'
+import { Eccl, ImageFormat, Mode, QROptions, QRCode } from './types.ts'
 
 class QROptionsError extends Error {
   constructor(public setting: string, public subcode: string) {
@@ -21,16 +21,13 @@ class QROptionsError extends Error {
 
 const notInteger = (value: number) => value !== Math.floor(value);
 
-const testText = (text: unknown) => {
-  if (typeof text !== 'string') {
-    throw new QROptionsError('text', '1')
-  }
-  if (text.length === 0) {
-    throw new QROptionsError('text', '2')
-  }
+const testText = (text: unknown): QROptionsError | null => {
+  if (typeof text !== 'string') return new QROptionsError('text', '1')
+  if (text.length === 0) return new QROptionsError('text', '2')
+  return null
 }
 
-const testMode = (mode: Mode, text: string): Mode => {
+const testMode = (mode: Mode, text: string): Mode | QROptionsError => {
   const ALPHANUMERIC_REGEXP = /^[A-Z0-9 $%*+\-./:]*$/
   const NUMERIC_REGEXP = /^\d*$/
 
@@ -44,10 +41,10 @@ const testMode = (mode: Mode, text: string): Mode => {
     return MODE_OCTET
   }
 
-  throw new QROptionsError('mode', '1')
+  return new QROptionsError('mode', '1')
 }
 
-const testVersion = (qrcode: QRCodeGenerator, ecclChoice: boolean) => {
+const testVersion = (qrcode: QRCodeGenerator, ecclChoice: boolean): QROptionsError | null => {
   const { mode } = qrcode
 
   const bitsDataMax = () => {
@@ -97,16 +94,17 @@ const testVersion = (qrcode: QRCodeGenerator, ecclChoice: boolean) => {
       if (fitLength(version)) break;
     }
     if (version > 40 && (!ecclChoice || !ecclVersion(40, ecclChoice, 1))) {
-      throw new QROptionsError('version', '1');
+      return new QROptionsError('version', '1')
     }
   } else if (version < 1 || version > 40 || notInteger(version)) {
-    throw new QROptionsError('version', '2');
+    return new QROptionsError('version', '2')
   } else {
     if (!ecclVersion(version, ecclChoice)) {
-      throw new QROptionsError('version', '3');
+      return new QROptionsError('version', '3')
     }
   }
   qrcode.version = version;
+  return null
 }
 
 export function makeQRCode(text = '', options: QROptions = {}): QRCode {
@@ -124,52 +122,62 @@ export function makeQRCode(text = '', options: QROptions = {}): QRCode {
   let finalModsize = modsize
   let finalMargin = margin
 
-  try {
-    testText(text)
-    qrcode.mode = testMode(mode, text)
-    qrcode.textToData()
+  let optionsError: QROptionsError | null = null
 
-    if ((qrcode as any).data.length === 0) {
-      throw new QROptionsError('text', '3')
-    }
-
-    if (eccl < -1 || eccl > 3 || notInteger(eccl)) {
-      throw new QROptionsError('eccl', '1')
-    }
-
-    testVersion(qrcode, eccl < 0)
-
-    if (mask !== -1 && (mask < 0 || mask > 8 || notInteger(mask))) {
-      throw new QROptionsError('mask', '1')
-    }
-
-    if (!IMAGE_FORMATS.includes(image)) {
-      throw new QROptionsError('image', '1')
-    }
-
-    if (modsize === -1) {
-      finalModsize = DEFAULT_MODSIZE
-    } else if (modsize < 1 || notInteger(modsize)) {
-      throw new QROptionsError('modsize', '1')
-    }
-
-    if (margin === -1) {
-      finalMargin = DEFAULT_MARGIN
-    } else if (margin < 0 || notInteger(margin)) {
-      throw new QROptionsError('margin', '1')
-    }
-
-    qrcode.dataToCodewords()
-    qrcode.makeCodewordsQR()
-    qrcode.makeMatrix()
-  } catch (e) {
-    if (e instanceof QROptionsError) {
-      qrcode.error = e.setting
-      qrcode.errorSubcode = e.subcode
+  const textError = testText(text)
+  if (textError) {
+    optionsError = textError
+  } else {
+    const modeResult = testMode(mode, text)
+    if (modeResult instanceof QROptionsError) {
+      optionsError = modeResult
     } else {
-      qrcode.error = 'unknown'
-      qrcode.errorSubcode = '0'
+      qrcode.mode = modeResult
+      qrcode.textToData()
+
+      if ((qrcode as any).data.length === 0) {
+        optionsError = new QROptionsError('text', '3')
+      } else if (eccl < -1 || eccl > 3 || notInteger(eccl)) {
+        optionsError = new QROptionsError('eccl', '1')
+      } else {
+        const versionError = testVersion(qrcode, eccl < 0)
+        if (versionError) {
+          optionsError = versionError
+        } else if (mask !== -1 && (mask < 0 || mask > 7 || notInteger(mask))) {
+          optionsError = new QROptionsError('mask', '1')
+        } else if (!IMAGE_FORMATS.includes(image)) {
+          optionsError = new QROptionsError('image', '1')
+        } else if (modsize === -1) {
+          finalModsize = DEFAULT_MODSIZE
+        } else if (modsize < 1 || notInteger(modsize)) {
+          optionsError = new QROptionsError('modsize', '1')
+        }
+
+        if (!optionsError) {
+          if (margin === -1) {
+            finalMargin = DEFAULT_MARGIN
+          } else if (margin < 0 || notInteger(margin)) {
+            optionsError = new QROptionsError('margin', '1')
+          }
+        }
+
+        if (!optionsError) {
+          try {
+            qrcode.dataToCodewords()
+            qrcode.makeCodewordsQR()
+            qrcode.makeMatrix()
+          } catch (e) {
+            qrcode.error = 'unknown'
+            qrcode.errorSubcode = '0'
+          }
+        }
+      }
     }
+  }
+
+  if (optionsError) {
+    qrcode.error = optionsError.setting
+    qrcode.errorSubcode = optionsError.subcode
   }
 
   const renderer = new ImageRenderer(qrcode.matrix, finalModsize, finalMargin)

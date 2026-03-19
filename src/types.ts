@@ -1,4 +1,4 @@
-import { IMAGE_FORMATS } from './constants';
+import { IMAGE_FORMATS } from './constants.ts'
 
 export type Mode = 1 | 2 | 4 | -1;
 export type Eccl = 0 | 1 | 2 | 3 | -1;

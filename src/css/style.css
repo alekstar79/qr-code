@@ -172,37 +172,45 @@ button:focus-visible {
 
 /* --- Tooltip Styles --- */
 .tooltip-trigger {
-  cursor: pointer; /* Changed to pointer for click interaction */
-  font-size: 0.8em;
-  background-color: #646cff;
-  color: white;
+  cursor: pointer;
+  font-size: 0.75em;
+  background-color: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 50%;
-  width: 1.2em;
-  height: 1.2em;
+  width: 1.25em;
+  height: 1.25em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  position: relative; /* For positioning the tooltip content */
-  user-select: none; /* Prevent text selection */
+  font-weight: 700;
+  position: relative;   /* For positioning the tooltip content */
+  user-select: none;    /* Prevent text selection */
+  margin-left: 0.35rem; /* Ensure spacing */
+  line-height: 1;
+  padding: 0;
 }
+
+/* Intentionally no focus outline on tooltip trigger to match requested styling */
 
 .tooltip-content {
   visibility: hidden; /* Hidden by default */
   opacity: 0; /* Hidden by default */
-  background-color: #333;
-  color: #fff;
+  background-color: rgba(20, 20, 20, 0.75);
+  color: rgba(255, 255, 255, 0.95);
   text-align: left;
-  border-radius: 6px;
-  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 8px 10px;
   position: absolute;
   z-index: 1000;
   bottom: 125%; /* Position above the trigger */
   left: 50%;
   transform: translateX(-50%);
   white-space: normal;
-  width: 250px; /* Max width for readability */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 230px; /* Max width for readability */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
   transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
   font-size: 0.9em;
 }
@@ -221,7 +229,7 @@ button:focus-visible {
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #333 transparent transparent transparent;
+  border-color: rgba(20, 20, 20, 0.75) transparent transparent transparent;
 }
 
 
@@ -263,7 +271,7 @@ button:focus-visible {
   }
 
   #qr-code-container {
-    width: min(80vw, 300px); /* Responsive width, max 300px */
+    width: min(80vw, 300px);  /* Responsive width, max 300px */
     height: min(80vw, 300px); /* Responsive height, max 300px */
     padding: 0.5rem;
   }
@@ -271,13 +279,13 @@ button:focus-visible {
   .tooltip-content {
     width: 200px; /* Smaller width for mobile tooltips */
     bottom: auto; /* Reset bottom positioning */
-    top: 125%; /* Position below the trigger */
-    left: 0; /* Align to the left of the trigger */
+    top: 125%;    /* Position below the trigger */
+    left: 0;      /* Align to the left of the trigger */
     transform: translateX(0); /* Reset transform */
   }
 
   .tooltip-content::after {
-    top: -5px; /* Arrow points upwards */
+    top: -5px;  /* Arrow points upwards */
     left: 15px; /* Adjust arrow position */
     margin-left: 0;
     border-color: transparent transparent #333 transparent;

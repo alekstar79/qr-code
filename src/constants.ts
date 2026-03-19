@@ -6,10 +6,10 @@
 /**
  * Mode constants (see Table 2 in JIS X 0510:2004 page 16)
  */
-export const MODE_TERMINATOR = 0;
-export const MODE_NUMERIC = 1;
-export const MODE_ALPHANUMERIC = 2;
-export const MODE_OCTET = 4;
+export const MODE_TERMINATOR = 0
+export const MODE_NUMERIC = 1
+export const MODE_ALPHANUMERIC = 2
+export const MODE_OCTET = 4
 
 /**
  * Checks if a given mode is a valid QR code mode.
@@ -21,17 +21,17 @@ export const isMode = (mode: number): boolean => [1, 2, 4].includes(mode);
 /**
  * ECC levels (see Table 22 in JIS X 0510:2004 page 45)
  */
-export const ECCLEVEL_M = 0;
-export const ECCLEVEL_L = 1;
-export const ECCLEVEL_H = 2;
-export const ECCLEVEL_Q = 3;
+export const ECCLEVEL_M = 0
+export const ECCLEVEL_L = 1
+export const ECCLEVEL_H = 2
+export const ECCLEVEL_Q = 3
 
 /**
  * Checks if a given ECC level is valid.
  * @param eccl The ECC level to check.
  * @returns True if the ECC level is valid, false otherwise.
  */
-export const isEccl = (eccl: number): boolean => eccl >= 0 && eccl < 4;
+export const isEccl = (eccl: number): boolean => eccl >= 0 && eccl < 4
 
 /**
  * Returns the number of bits required to write data length.
@@ -43,25 +43,26 @@ export const isEccl = (eccl: number): boolean => eccl >= 0 && eccl < 4;
 export const bitsFieldDataQuantity = (version: number, mode: number): number => {
   if (version < 10) {
     switch (mode) {
-      case MODE_NUMERIC: return 10;
-      case MODE_ALPHANUMERIC: return 9;
-      case MODE_OCTET: return 8;
+      case MODE_NUMERIC: return 10
+      case MODE_ALPHANUMERIC: return 9
+      case MODE_OCTET: return 8
     }
   } else if (version < 27) {
     switch (mode) {
-      case MODE_NUMERIC: return 12;
-      case MODE_ALPHANUMERIC: return 11;
-      case MODE_OCTET: return 16;
+      case MODE_NUMERIC: return 12
+      case MODE_ALPHANUMERIC: return 11
+      case MODE_OCTET: return 16
     }
   } else {
     switch (mode) {
-      case MODE_NUMERIC: return 14;
-      case MODE_ALPHANUMERIC: return 13;
-      case MODE_OCTET: return 16;
+      case MODE_NUMERIC: return 14
+      case MODE_ALPHANUMERIC: return 13
+      case MODE_OCTET: return 16
     }
   }
-  return 0;
-};
+
+  return 0
+}
 
 /**
  * Table of character values in alphanumeric encoding.
@@ -70,38 +71,40 @@ export const bitsFieldDataQuantity = (version: number, mode: number): number => 
 export const ALPHANUMERIC_MAP: { [key: string]: number } = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:'
   .split('')
   .reduce((map: { [key: string]: number }, ch, i) => {
-    map[ch] = i;
-    return map;
-  }, {});
+    map[ch] = i
+    return map
+  }, {})
 
 /**
  * Logarithmic and anti-logarithmic tables for GF(256) arithmetic.
  */
-export const GF256: number[] = [];
-export const GF256_INV: number[] = [-1];
+export const GF256: number[] = []
+export const GF256_INV: number[] = [-1]
 
 // Generating QR code logs for Galois field 256
 for (let i = 0, v = 1; i < 255; ++i) {
-  GF256.push(v);
-  GF256_INV[v] = i;
-  v = (v * 2) ^ (v >= 128 ? 0x11d : 0); // 0x11d === 0b100011101
+  GF256.push(v)
+  GF256_INV[v] = i
+  v = (v * 2) ^ (v >= 128 ? 0x11d : 0) // 0x11d === 0b100011101
 }
 
 /**
  * Generating polynomials for error correction.
  */
-export const GF256_GENPOLY: { [key: number]: number[] } = {};
+export const GF256_GENPOLY: { [key: number]: number[] } = {}
 
 for (let i = 0, genpoly: number[] = []; i < 30; ++i) {
-  const poly: number[] = [];
+  const poly: number[] = []
+
   for (let j = 0; j <= i; ++j) {
-    const a = (j < i ? GF256[genpoly[j]] : 0);
-    const b = GF256[(i + (genpoly[j - 1] || 0)) % 255];
-    poly.push(GF256_INV[a ^ b]);
+    const a = (j < i ? GF256[genpoly[j]] : 0)
+    const b = GF256[(i + (genpoly[j - 1] || 0)) % 255]
+    poly.push(GF256_INV[a ^ b])
   }
-  genpoly = poly;
+
+  genpoly = poly
   if ([7, 10, 13, 15, 16, 17, 18, 20, 22, 24, 26, 28, 30].includes(i + 1)) {
-    GF256_GENPOLY[i + 1] = poly;
+    GF256_GENPOLY[i + 1] = poly
   }
 }
 
@@ -114,14 +117,16 @@ for (let i = 0, genpoly: number[] = []; i < 30; ++i) {
  * @returns The BCH encoded data.
  */
 export const encodeBCH = (poly: number, bitsPoly: number, genpoly: number, bitsGenpoly: number): number => {
-  let modulus = poly << bitsGenpoly;
+  let modulus = poly << bitsGenpoly
+
   for (let i = bitsPoly - 1; i >= 0; --i) {
     if ((modulus >> (bitsGenpoly + i)) & 1) {
-      modulus ^= genpoly << i;
+      modulus ^= genpoly << i
     }
   }
-  return (poly << bitsGenpoly) | modulus;
-};
+
+  return (poly << bitsGenpoly) | modulus
+}
 
 /**
  * Masking functions.
@@ -129,14 +134,14 @@ export const encodeBCH = (poly: number, bitsPoly: number, genpoly: number, bitsG
  */
 export const MASKFUNCS: ((y: number, x: number) => boolean)[] = [
   (y, x) => (y + x) % 2 === 0,
-  (y, x) => y % 2 === 0,
-  (y, x) => x % 3 === 0,
+  (y, _) => y % 2 === 0,
+  (_, x) => x % 3 === 0,
   (y, x) => (y + x) % 3 === 0,
   (y, x) => (Math.floor(y / 2) + Math.floor(x / 3)) % 2 === 0,
   (y, x) => (y * x) % 2 + (y * x) % 3 === 0,
   (y, x) => ((y * x) % 2 + (y * x) % 3) % 2 === 0,
   (y, x) => ((y + x) % 2 + (y * x) % 3) % 2 === 0,
-];
+]
 
 /**
  * Penalty scores for QR code matrix evaluation.
@@ -146,29 +151,29 @@ export const PENALTY = {
   CONSECUTIVE: 3,
   TWOBYTWO: 3,
   FINDERLIKE: 40,
-  DENSITY: 10,
-};
+  DENSITY: 10
+}
 
 /**
  * Supported image formats.
  */
-export const IMAGE_FORMATS = ['PNG', 'SVG', 'HTML', 'NONE'] as const;
+export const IMAGE_FORMATS = ['PNG', 'SVG', 'HTML', 'NONE'] as const
 
 /**
  * Default module size.
  */
-export const DEFAULT_MODSIZE = 4;
+export const DEFAULT_MODSIZE = 4
 
 /**
  * Default margin size.
  */
-export const DEFAULT_MARGIN = 4;
+export const DEFAULT_MARGIN = 4
 
 /**
  * Version information.
  * (see JIS X 0510:2004, page 30–36, 71)
  */
-export const infoVersion: (number | number[][] | number[][][])[] = [
+export const infoVersion: (number | number[][] | number[][][] | null)[] = [
   null,
   [[10, 7, 17, 13], [1, 1, 1, 1], []],
   [[16, 10, 28, 22], [1, 1, 1, 1], [4, 16]],
@@ -210,4 +215,4 @@ export const infoVersion: (number | number[][] | number[][][])[] = [
   [[28, 30, 30, 30], [45, 22, 74, 62], [4, 30, 56, 82, 108, 134, 160]],
   [[28, 30, 30, 30], [47, 24, 77, 65], [4, 24, 52, 80, 108, 136, 164]],
   [[28, 30, 30, 30], [49, 25, 81, 68], [4, 28, 56, 84, 112, 140, 168]],
-];
+]

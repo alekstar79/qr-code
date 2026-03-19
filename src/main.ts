@@ -1,6 +1,6 @@
-import { makeQRCode } from '../lib'
-import { Eccl, ImageFormat, Mode, Mask, QROptions } from '../lib/types'
-import './style.css'
+import { makeQRCode } from './index.ts'
+import { Eccl, ImageFormat, Mode, Mask, QROptions } from './types.ts'
+import './css/style.css'
 
 // --- DOM Elements ---
 const textInput = document.getElementById('text-input') as HTMLTextAreaElement
@@ -127,13 +127,13 @@ function updateUIForLanguage(lang: 'en' | 'ru') {
   document.querySelectorAll('#eccl-select option').forEach(option => {
     const key = option.getAttribute('data-i18n') as keyof typeof currentTranslations
     if (currentTranslations[key]) {
-      option.textContent = currentTranslations[key];
+      option.textContent = currentTranslations[key]
     }
   })
   document.querySelectorAll('#image-format-select option').forEach(option => {
     const key = option.getAttribute('data-i18n') as keyof typeof currentTranslations
     if (currentTranslations[key]) {
-      option.textContent = currentTranslations[key];
+      option.textContent = currentTranslations[key]
     }
   })
 
@@ -214,7 +214,9 @@ function handleDownload() {
  */
 function hideActiveTooltip() {
   if (activeTooltip) {
+    activeTooltip.setAttribute('aria-hidden', 'true')
     activeTooltip.classList.remove('active')
+    activeTooltip.parentElement?.setAttribute('aria-expanded', 'false')
     activeTooltip = null
   }
 }
@@ -225,31 +227,65 @@ function hideActiveTooltip() {
 function initializeTooltips() {
   // Clear existing tooltips first
   document.querySelectorAll('.tooltip-content').forEach(content => content.remove())
+  hideActiveTooltip()
 
   document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
     const key = trigger.getAttribute('data-tooltip-key')
     const tooltipKey = `tooltip_${key}` as keyof typeof translations['en']
 
-    if (key && translations[currentLang][tooltipKey]) {
-      const tooltipContent = document.createElement('span')
+    if (!key) return
+    if (!translations[currentLang][tooltipKey]) return
 
-      tooltipContent.className = 'tooltip-content'
-      tooltipContent.textContent = translations[currentLang][tooltipKey]
+    const tooltipContentId = `tooltip-content-${key}`
+    const tooltipContent = document.createElement('span')
 
-      trigger.appendChild(tooltipContent)
+    tooltipContent.className = 'tooltip-content'
+    tooltipContent.id = tooltipContentId
+    tooltipContent.setAttribute('role', 'tooltip')
+    tooltipContent.setAttribute('aria-hidden', 'true')
+    tooltipContent.textContent = translations[currentLang][tooltipKey]
 
-      // Add click listener to the trigger
-      trigger.addEventListener('click', (event) => {
-        event.stopPropagation() // Prevent this click from immediately hiding the tooltip via document listener
+    trigger.setAttribute('aria-describedby', tooltipContentId)
+    trigger.appendChild(tooltipContent)
 
-        if (activeTooltip && activeTooltip !== tooltipContent) {
-          hideActiveTooltip() // Hide other active tooltip if any
-        }
+    // Bind once per trigger; the handler re-queries current tooltip content
+    if (trigger.getAttribute('data-tooltip-bound') === 'true') return
+    trigger.setAttribute('data-tooltip-bound', 'true')
 
-        tooltipContent.classList.toggle('active') // Toggle visibility
-        activeTooltip = tooltipContent.classList.contains('active') ? tooltipContent : null
-      })
+    const toggleTooltip = (event: Event): void => {
+      event.stopPropagation()
+      if (event instanceof MouseEvent) {
+        event.preventDefault()
+      }
+
+      const currentTooltip = trigger.querySelector('.tooltip-content') as HTMLElement | null
+      if (!currentTooltip) return
+
+      // Кликнули по самой подсказке (контент внутри trigger) — не переключаем её, чтобы не скрывать.
+      const targetNode = event.target as Node | null
+      if (targetNode && currentTooltip.contains(targetNode)) {
+        return
+      }
+
+      if (activeTooltip && activeTooltip !== currentTooltip) {
+        hideActiveTooltip()
+      }
+
+      const willShow = !currentTooltip.classList.contains('active')
+      currentTooltip.classList.toggle('active')
+      currentTooltip.setAttribute('aria-hidden', willShow ? 'false' : 'true')
+      trigger.setAttribute('aria-expanded', willShow ? 'true' : 'false')
+      activeTooltip = willShow ? currentTooltip : null
     }
+
+    trigger.addEventListener('click', toggleTooltip)
+    trigger.addEventListener('keydown', (event) => {
+      const e = event as KeyboardEvent
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault()
+        toggleTooltip(e)
+      }
+    })
   })
 }
 
@@ -261,9 +297,19 @@ langRuBtn.addEventListener('click', () => updateUIForLanguage('ru'))
 
 // Global click listener to hide tooltips when clicking outside
 document.addEventListener('click', (event) => {
-  if (activeTooltip && !activeTooltip.contains(event.target as Node)) {
-    hideActiveTooltip()
-  }
+  if (!activeTooltip) return
+
+  const target = event.target as Node | null
+  if (!target) return
+
+  // Не скрываем подсказку, если кликнули внутри текущей подсказки.
+  if (activeTooltip.contains(target)) return
+
+  // Не скрываем, если кликнули по самому триггеру текущей подсказки.
+  const triggerEl = activeTooltip.parentElement
+  if (triggerEl && triggerEl.contains(target)) return
+
+  hideActiveTooltip()
 })
 
 // --- Initial Setup ---
