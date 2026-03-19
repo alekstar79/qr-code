@@ -1,85 +1,92 @@
 import {
+  // isEccl,
   DEFAULT_MARGIN,
   DEFAULT_MODSIZE,
   ECCLEVEL_H,
   IMAGE_FORMATS,
-  isEccl,
   MODE_ALPHANUMERIC,
   MODE_NUMERIC,
   MODE_OCTET,
-} from './constants';
-import { ImageRenderer } from './image-renderer';
-import { QRCodeGenerator } from './qr-code-generator';
-import { Eccl, ImageFormat, Mode, QROptions, QRCode } from './types';
+} from './constants'
+import { ImageRenderer } from './image-renderer'
+import { QRCodeGenerator } from './qr-code-generator'
+import { Eccl, ImageFormat, Mode, QROptions, QRCode } from './types'
 
 class QROptionsError extends Error {
   constructor(public setting: string, public subcode: string) {
-    super(`QR options error: ${setting} - ${subcode}`);
-    this.name = 'QROptionsError';
+    super(`QR options error: ${setting} - ${subcode}`)
+    this.name = 'QROptionsError'
   }
 }
 
 const notInteger = (value: number) => value !== Math.floor(value);
 
-const testText = (text: string) => {
+const testText = (text: unknown) => {
   if (typeof text !== 'string') {
-    throw new QROptionsError('text', '1');
+    throw new QROptionsError('text', '1')
   }
   if (text.length === 0) {
-    throw new QROptionsError('text', '2');
+    throw new QROptionsError('text', '2')
   }
-};
+}
 
 const testMode = (mode: Mode, text: string): Mode => {
-  const ALPHANUMERIC_REGEXP = /^[A-Z0-9 $%*+\-./:]*$/;
-  const NUMERIC_REGEXP = /^\d*$/;
+  const ALPHANUMERIC_REGEXP = /^[A-Z0-9 $%*+\-./:]*$/
+  const NUMERIC_REGEXP = /^\d*$/
 
   if ((mode === MODE_NUMERIC || mode === -1) && NUMERIC_REGEXP.test(text)) {
-    return MODE_NUMERIC;
+    return MODE_NUMERIC
   }
   if ((mode === MODE_ALPHANUMERIC || mode === -1) && ALPHANUMERIC_REGEXP.test(text)) {
-    return MODE_ALPHANUMERIC;
+    return MODE_ALPHANUMERIC
   }
   if (mode === MODE_OCTET || mode === -1) {
-    return MODE_OCTET;
+    return MODE_OCTET
   }
-  throw new QROptionsError('mode', '1');
-};
+
+  throw new QROptionsError('mode', '1')
+}
 
 const testVersion = (qrcode: QRCodeGenerator, ecclChoice: boolean) => {
-  const { mode } = qrcode;
+  const { mode } = qrcode
 
   const bitsDataMax = () => {
-    const nBits = (qrcode as any).bitsData - 4 - (qrcode as any).bitsFieldDataQty;
+    const nBits = (qrcode as any).bitsData - 4 - (qrcode as any).bitsFieldDataQty
+
     switch (mode) {
       case MODE_NUMERIC:
-        return Math.floor(nBits / 10) * 3 + (nBits % 10 < 4 ? 0 : nBits % 10 < 7 ? 1 : 2);
+        return Math.floor(nBits / 10) * 3 + (nBits % 10 < 4 ? 0 : nBits % 10 < 7 ? 1 : 2)
       case MODE_ALPHANUMERIC:
-        return Math.floor(nBits / 11) * 2 + (nBits % 11 < 6 ? 0 : 1);
+        return Math.floor(nBits / 11) * 2 + (nBits % 11 < 6 ? 0 : 1)
       case MODE_OCTET:
-        return Math.floor(nBits / 8);
+        return Math.floor(nBits / 8)
     }
-    return 0;
-  };
+
+    return 0
+  }
 
   const fitLength = (version: number) => {
-    qrcode.version = version;
-    return (qrcode as any).data.length <= bitsDataMax();
-  };
+    qrcode.version = version
+    return (qrcode as any).data.length <= bitsDataMax()
+  }
 
   const ecclVersion = (version: number, ecclChoice: boolean, iStart = 0) => {
-    const ecclPriority = [ECCLEVEL_H, 3, 0, 1];
+    const ecclPriority = [ECCLEVEL_H, 3, 0, 1]
+
     if (!ecclChoice) {
-      return fitLength(version);
+      return fitLength(version)
     }
+
     for (let i = iStart; i < 4; ++i) {
-      qrcode.eccl = ecclPriority[i] as Eccl;
+      qrcode.eccl = ecclPriority[i] as Eccl
+
       if (fitLength(version)) {
-        return true;
+        return true
       }
     }
-    return false;
-  };
+
+    return false
+  }
 
   let version = qrcode.version;
   if (version === -1) {
@@ -100,7 +107,7 @@ const testVersion = (qrcode: QRCodeGenerator, ecclChoice: boolean) => {
     }
   }
   qrcode.version = version;
-};
+}
 
 export function makeQRCode(text = '', options: QROptions = {}): QRCode {
   const {
@@ -111,74 +118,74 @@ export function makeQRCode(text = '', options: QROptions = {}): QRCode {
     image = 'PNG',
     modsize = -1,
     margin = -1,
-  } = options;
+  } = options
 
-  const qrcode = new QRCodeGenerator(text, mode, eccl, version, mask);
-  let finalModsize = modsize;
-  let finalMargin = margin;
+  const qrcode = new QRCodeGenerator(text, mode, eccl, version, mask)
+  let finalModsize = modsize
+  let finalMargin = margin
 
   try {
-    testText(text);
-    qrcode.mode = testMode(mode, text);
-    qrcode.textToData();
+    testText(text)
+    qrcode.mode = testMode(mode, text)
+    qrcode.textToData()
 
     if ((qrcode as any).data.length === 0) {
-      throw new QROptionsError('text', '3');
+      throw new QROptionsError('text', '3')
     }
 
     if (eccl < -1 || eccl > 3 || notInteger(eccl)) {
-      throw new QROptionsError('eccl', '1');
+      throw new QROptionsError('eccl', '1')
     }
 
-    testVersion(qrcode, eccl < 0);
+    testVersion(qrcode, eccl < 0)
 
     if (mask !== -1 && (mask < 0 || mask > 8 || notInteger(mask))) {
-      throw new QROptionsError('mask', '1');
+      throw new QROptionsError('mask', '1')
     }
 
     if (!IMAGE_FORMATS.includes(image)) {
-      throw new QROptionsError('image', '1');
+      throw new QROptionsError('image', '1')
     }
 
     if (modsize === -1) {
-      finalModsize = DEFAULT_MODSIZE;
+      finalModsize = DEFAULT_MODSIZE
     } else if (modsize < 1 || notInteger(modsize)) {
-      throw new QROptionsError('modsize', '1');
+      throw new QROptionsError('modsize', '1')
     }
 
     if (margin === -1) {
-      finalMargin = DEFAULT_MARGIN;
+      finalMargin = DEFAULT_MARGIN
     } else if (margin < 0 || notInteger(margin)) {
-      throw new QROptionsError('margin', '1');
+      throw new QROptionsError('margin', '1')
     }
 
-    qrcode.dataToCodewords();
-    qrcode.makeCodewordsQR();
-    qrcode.makeMatrix();
+    qrcode.dataToCodewords()
+    qrcode.makeCodewordsQR()
+    qrcode.makeMatrix()
   } catch (e) {
     if (e instanceof QROptionsError) {
-      qrcode.error = e.setting;
-      qrcode.errorSubcode = e.subcode;
+      qrcode.error = e.setting
+      qrcode.errorSubcode = e.subcode
     } else {
-      qrcode.error = 'unknown';
-      qrcode.errorSubcode = '0';
+      qrcode.error = 'unknown'
+      qrcode.errorSubcode = '0'
     }
   }
 
-  const renderer = new ImageRenderer(qrcode.matrix, finalModsize, finalMargin);
-  const result = qrcode.error ? null : renderer.render(image);
+  const renderer = new ImageRenderer(qrcode.matrix, finalModsize, finalMargin)
+  const result = qrcode.error ? null : renderer.render(image)
 
   const download = (filename = '', downloadImage: ImageFormat = image) => {
-    const content = renderer.render(downloadImage);
-    let dataUrl = '';
+    const content = renderer.render(downloadImage)
+    let dataUrl = ''
 
     if (content instanceof HTMLCanvasElement) {
-      dataUrl = content.toDataURL();
-      if (!filename) filename = 'qrcode.png';
+      dataUrl = content.toDataURL()
+      if (!filename) filename = 'qrcode.png'
     } else if (content instanceof SVGElement) {
-      const svgXml = new XMLSerializer().serializeToString(content);
-      dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgXml)}`;
-      if (!filename) filename = 'qrcode.svg';
+      const svgXml = new XMLSerializer().serializeToString(content)
+      dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgXml)}`
+      if (!filename) filename = 'qrcode.svg'
     } else if (content instanceof HTMLElement) {
       // Critical CSS for HTML QR code to be self-contained
       const htmlStyles = `
@@ -202,28 +209,30 @@ export function makeQRCode(text = '', options: QROptions = {}): QRCode {
             background-color: #000;
           }
         </style>
-      `;
+      `
+
       const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code</title>
-    ${htmlStyles}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code</title>
+  ${htmlStyles}
 </head>
 <body>
-    ${content.outerHTML}
+  ${content.outerHTML}
 </body>
-</html>`;
-      dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(fullHtml)}`;
-      if (!filename) filename = 'qrcode.html';
+</html>`
+
+      dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(fullHtml)}`
+      if (!filename) filename = 'qrcode.html'
     }
 
-    const el = document.createElement('a');
-    el.setAttribute('href', dataUrl);
-    el.setAttribute('download', filename);
-    el.click();
-  };
+    const el = document.createElement('a')
+    el.setAttribute('href', dataUrl)
+    el.setAttribute('download', filename)
+    el.click()
+  }
 
   return {
     text: qrcode.text,
@@ -234,9 +243,9 @@ export function makeQRCode(text = '', options: QROptions = {}): QRCode {
     matrix: qrcode.matrix,
     modsize: finalModsize,
     margin: finalMargin,
-    result,
     error: qrcode.error,
     errorSubcode: qrcode.errorSubcode,
-    download,
-  };
+    result,
+    download
+  }
 }

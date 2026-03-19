@@ -8,70 +8,76 @@
 </head>
 <body>
   <div id="app">
-    <h1>QR Code Generator</h1>
+    <div class="header">
+      <h1>QR Code Generator</h1>
+      <div class="language-switcher">
+        <button id="lang-en" class="lang-button active" data-lang="en">EN</button>
+        <button id="lang-ru" class="lang-button" data-lang="ru">RU</button>
+      </div>
+    </div>
     <div class="container">
       <div class="controls">
         <div class="control-group">
-          <label for="text-input">Text to encode</label>
+          <label for="text-input" data-i18n="textInputLabel">Text to encode <span class="tooltip-trigger" data-tooltip-key="textInput">?</span></label>
           <textarea id="text-input">https://github.com/alekstar79</textarea>
         </div>
 
         <div class="control-group">
-          <label for="mode-select">Encoding Mode</label>
+          <label for="mode-select" data-i18n="modeSelectLabel">Encoding Mode <span class="tooltip-trigger" data-tooltip-key="modeSelect">?</span></label>
           <select id="mode-select">
-            <option value="-1" selected>Auto</option>
-            <option value="1">Numerical</option>
-            <option value="2">Alphanumeric</option>
-            <option value="4">Binary (UTF8)</option>
+            <option value="-1" selected data-i18n="autoOption">Auto</option>
+            <option value="1" data-i18n="numericalOption">Numerical</option>
+            <option value="2" data-i18n="alphanumericOption">Alphanumeric</option>
+            <option value="4" data-i18n="binaryOption">Binary (UTF8)</option>
           </select>
         </div>
 
         <div class="control-group">
-          <label for="eccl-select">Error Correction Level</label>
+          <label for="eccl-select" data-i18n="ecclSelectLabel">Error Correction Level <span class="tooltip-trigger" data-tooltip-key="ecclSelect">?</span></label>
           <select id="eccl-select">
-            <option value="-1">Auto</option>
-            <option value="1">Low (L)</option>
-            <option value="0">Medium (M)</option>
-            <option value="3">Quartile (Q)</option>
-            <option value="2" selected>High (H)</option>
+            <option value="-1" data-i18n="autoOption">Auto</option>
+            <option value="1" data-i18n="ecclLOption">Low (L)</option>
+            <option value="0" data-i18n="ecclMOption">Medium (M)</option>
+            <option value="3" data-i18n="ecclQOption">Quartile (Q)</option>
+            <option value="2" selected data-i18n="ecclHOption">High (H)</option>
           </select>
         </div>
 
         <div class="control-group">
-          <label for="version-input">Version (1-40, -1 for Auto)</label>
+          <label for="version-input" data-i18n="versionInputLabel">Version (1-40, -1 for Auto) <span class="tooltip-trigger" data-tooltip-key="versionInput">?</span></label>
           <input type="number" id="version-input" value="-1" min="-1" max="40">
         </div>
 
         <div class="control-group">
-          <label for="mask-input">Mask Pattern (0-7, -1 for Auto)</label>
+          <label for="mask-input" data-i18n="maskInputLabel">Mask Pattern (0-7, -1 for Auto) <span class="tooltip-trigger" data-tooltip-key="maskInput">?</span></label>
           <input type="number" id="mask-input" value="-1" min="-1" max="7">
         </div>
 
         <div class="control-group">
-          <label for="image-format-select">Image Format</label>
+          <label for="image-format-select" data-i18n="imageFormatSelectLabel">Image Format <span class="tooltip-trigger" data-tooltip-key="imageFormatSelect">?</span></label>
           <select id="image-format-select">
-            <option value="SVG" selected>SVG</option>
-            <option value="PNG">PNG</option>
-            <option value="HTML">HTML</option>
+            <option value="SVG" selected data-i18n="svgOption">SVG</option>
+            <option value="PNG" data-i18n="pngOption">PNG</option>
+            <option value="HTML" data-i18n="htmlOption">HTML</option>
           </select>
         </div>
 
         <div class="control-group">
-          <label for="modsize-input">Module Size (px)</label>
+          <label for="modsize-input" data-i18n="modsizeInputLabel">Module Size (px) <span class="tooltip-trigger" data-tooltip-key="modsizeInput">?</span></label>
           <input type="number" id="modsize-input" value="8" min="1">
         </div>
 
         <div class="control-group">
-          <label for="margin-input">Margin (modules)</label>
+          <label for="margin-input" data-i18n="marginInputLabel">Margin (modules) <span class="tooltip-trigger" data-tooltip-key="marginInput">?</span></label>
           <input type="number" id="margin-input" value="4" min="0">
         </div>
 
-        <button id="generate-btn">Generate QR Code</button>
+        <button id="generate-btn" data-i18n="generateButton">Generate QR Code</button>
       </div>
       <div class="result-area">
         <div id="qr-code-container"></div>
         <div id="error-container"></div>
-        <button id="download-btn" class="hidden">Download</button>
+        <button id="download-btn" class="hidden" data-i18n="downloadButton">Download</button>
       </div>
     </div>
   </div>
