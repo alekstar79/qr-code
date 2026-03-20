@@ -70,8 +70,8 @@ temp/
 *.pem
 
 # Build outputs
-/dist/
-/lib/
+dist/
+lib/
 *.tsbuildinfo
 
 # Coverage
