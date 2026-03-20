@@ -233,7 +233,7 @@ The test suite uses [Vitest](https://vitest.dev/) with JSDOM. Run `yarn test` to
 
 ## License
 
-ISC © [alekstar79](https://github.com/alekstar79)
+MIT © [alekstar79](https://github.com/alekstar79)
 
 ---
 
