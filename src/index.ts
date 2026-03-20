@@ -1,4 +1,4 @@
-import { Eccl, ImageFormat, Mode, QRCode, QROptions } from './types'
+import { Eccl, ImageFormat, Mask, Mode, QRCode, QROptions } from './types'
 import { QRCodeGenerator } from './qr-code-generator'
 import { ImageRenderer } from './image-renderer'
 import {
@@ -299,3 +299,5 @@ export function makeQRCode(textOrOptions: string | QROptions = '', options: QROp
     download
   }
 }
+
+export type { Eccl, ImageFormat, Mode, Mask, QROptions }

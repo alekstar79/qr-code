@@ -1,4 +1,4 @@
-import { Eccl, Mask, Mode } from './types.ts';
+import { Eccl, Mask, Mode } from './types';
 export declare class QRCodeGenerator {
     readonly text: string;
     mode: Mode;

@@ -1,4 +1,4 @@
-import { ImageFormat } from './types.ts';
+import { ImageFormat } from './types';
 export declare class ImageRenderer {
     private readonly matrix;
     private readonly modsize;
