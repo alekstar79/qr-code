@@ -11,12 +11,12 @@ export class ImageRenderer {
     this.margin = margin
   }
 
-  public render(format: ImageFormat): HTMLElement | HTMLCanvasElement {
+  public render(format: ImageFormat): HTMLElement | HTMLCanvasElement | SVGElement {
     switch (format) {
       case 'PNG':
         return this.renderPNG()
       case 'SVG':
-        return this.renderSVG() as unknown as HTMLElement
+        return this.renderSVG()
       case 'HTML':
         return this.renderHTML()
       case 'NONE':

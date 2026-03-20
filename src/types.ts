@@ -36,7 +36,7 @@ export interface QRCode {
   matrix: (number | null)[][];
   modsize: number;
   margin: number;
-  result: string | HTMLElement | null;
+  result: HTMLElement | HTMLCanvasElement | SVGElement | null;
   error: string;
   errorSubcode: string;
   download: (filename?: string, image?: ImageFormat) => void;

@@ -1,181 +1,246 @@
-<!--suppress HtmlDeprecatedAttribute -->
-<p align="center">QRCreator.js</p>
-<p align="center">Make now QR-code.</p>
-<p align="center">
- <img src="review.gif" alt="">
-</p>
+# QR Code Generator
 
-[ДЕМО](https://alekstar79.github.io/qr-code)
+[![npm version](https://img.shields.io/npm/v/@alekstar79/qr-code.svg)](https://www.npmjs.com/package/@alekstar79/qr-code)
+[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+[![GitHub](https://img.shields.io/badge/github-repo-green.svg?style=flat)](https://github.com/alekstar79/qr-code)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat-square)](https://www.typescriptlang.org)
+[![Coverage](https://img.shields.io/badge/coverage-95.83%25-brightgreen.svg)](https://github.com/alekstar79/qr-code)
 
-<h2>ПОДКЛЮЧЕНИЕ</h2>
+A lightweight, dependency‑free QR code generator written in TypeScript.  
+It creates QR codes in **PNG**, **SVG**, or **HTML** (CSS Grid) formats, with full control over encoding mode, error correction, version, mask, module size, and quiet zone.
 
-1. Сохраните файл _[qr-code.js](https://raw.githubusercontent.com/alekstar79/qr-code/main/dist/js/qr-code.js)_  
-   По ссылке страница перенаправляется на содержимое файла.<br>Нажмите правую кнопку мыши ( или сочетание клавиш `Ctrl`+`S` / `CMD`+`S` ) и выберите `Сохранить как`<br>
-2. В html файле, в теге `<head>` вставьте тег `<script>` с указанием ссылки на файл QRCreator.js
-````
-<script src="qr-code.js" defer><script/>
-````
+👉 [**Live Demo**](https://alekstar79.github.io/qr-code)
 
-### Пример подключения
+---
 
-```html
-<html lang="en">
-<head>
- <script src="qr-code.js"></script>
- <title></title>
-</head>
-<body>
-  <div id="qrcode"></div>
-</body>
+## Features
 
-<script>
- document.getElementById('qrcode').append(makeQRCode('Привет, Мир!').result)
-</script>
-</html>
+- 🔢 Supports **numeric**, **alphanumeric**, and **octet (UTF‑8)** modes.
+- 🛡️ All four error correction levels (L, M, Q, H) – automatically chooses the best if not specified.
+- 📦 Works with any version from 1 to 40 – picks the smallest possible version automatically.
+- 🎭 Mask pattern selection (0‑7) with automatic best‑mask evaluation.
+- 🖼️ Output formats: **PNG** (Canvas), **SVG**, **HTML** (responsive CSS Grid), or **NONE** (only matrix).
+- 📏 Customizable module size (`modsize`) and margin (quiet zone).
+- 📥 Built‑in `download()` method to save the generated QR code as a file.
+- 🌐 Full TypeScript support with clear types.
+- 🔧 No external dependencies – pure JavaScript/TypeScript.
+
+---
+
+## Installation
+
+### Using npm
+
+```bash
+npm install @alekstar79/qr-code-generator
 ```
 
-### Пример подключения с вызовом из js-файла
+Then import it in your project:
 
-```html
-<html lang="en">
-<head>
- <script src="qr-code.js" defer></script>
- <script src="main.js" defer></script>
- <title></title>
-</head>
-<body>
- <div id="qrcode1"></div>
- <div id="qrcode2"></div>
-</body>
-</html>
+```typescript
+import { makeQRCode } from '@alekstar79/qr-code-generator'
 ```
 
-__main.js__
-```js
-const qrcode1 = makeQRCode('Привет, Мир!', { mode: 4, eccl: 0, version: 3, mask: -1, image: 'html', modsize: -1, margin: 0 })
-const qrcode2 = makeQRCode('Привет, Мир!', { mode: 1})
+> **Note**: The CDN path points to the compiled ESM module. For legacy script tags, you can also download the file from the [releases](https://github.com/alekstar79/qr-code/releases) page.
 
-const content = qrcode => qrcode.error ? `недопустимые исходные данные ${qrcode.error}` : qrcode.result
+---
 
-document.getElementById('qrcode1').append('QR-код № 1: ', content(qrcode1))
-document.getElementById('qrcode2').append('QR-код № 2: ', content(qrcode2))
+## Usage
+
+### Basic Example
+
+```typescript
+import { makeQRCode } from '@alekstar79/qr-code-generator'
+
+const qr = makeQRCode('https://example.com')
+document.body.appendChild(qr.result) // result is an HTMLCanvasElement
 ```
 
-<h2>СИНТАКСИС</h2>
+### With Options
 
-window.makeQRCode(text [, options ])
+```typescript
+import { makeQRCode, QROptions } from '@alekstar79/qr-code-generator'
 
-или
+const options: QROptions = {
+  mode: -1,           // auto (numeric, alphanumeric, or octet)
+  eccl: 2,            // High error correction
+  version: -1,        // auto version
+  mask: -1,           // auto mask
+  image: 'SVG',       // output format: 'PNG', 'SVG', 'HTML', 'NONE'
+  modsize: 8,         // module size in pixels (only for PNG/SVG)
+  margin: 4           // quiet zone in modules
+}
 
-makeQRCode(text [, options ])
+const qr = makeQRCode('Hello, World!', options)
+document.getElementById('qr-container')!.appendChild(qr.result)
+```
 
-### Параметры
+### Using the Returned Object
 
-__text__<br>Кодируемая текстовая строка UTF-8.
+```typescript
+import { makeQRCode, QRCode } from '@alekstar79/qr-code-generator'
 
-__options__<br>Объект, содержащий свойства со значениями параметров генерации QR-кода, по умолчанию:<br>`{mode: -1,  eccl: 0, version: -1, mask: -1, image: 'PNG', modsize: -1, margin: -1}`
+const qr: QRCode = makeQRCode('My data')
 
-### Возвращаемое значение
+// Access generated matrix (0/1/null)
+console.log(qr.matrix)
 
-Объект __`qrcode`__, описывающий результат генерации QR-кода.
+// Change output format after generation
+qr.image = 'HTML'          // updates qr.result accordingly
 
-<h2>ОПИСАНИЕ</h2>
+// Download as file
+qr.download('my-qr.png')   // uses current format
+qr.download('my-qr.svg', 'SVG') // specify format
+```
 
-### 1. Свойство `options`
+---
 
-#### 1.1. Основные свойства `options`, содержащие значения параметров формирования матрицы QR-кода
+## API Reference
 
-|  свойство   |                    значение                    | содержание                                                                                                                                   |
-|:-----------:|:----------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------|
-|  __mode__   |         целое число<br>__-1, 1, 2, 4__         | __метод кодирования__<br> 1 - числовой,<br> 2 - буквенно-цифровой,<br> 4 - октетный,<br> если не указан или -1,<br> то выбирается допустимый |
-|  __eccl__   |         целое число<br>__от -1 до 3__          | __уровень коррекции ошибок__<br> 1(__L__), 0(__M__), 3(__Q__), 2(__H__)<br> если не указан или -1,<br> то подбор допустимого, начиная с 3(Q) |
-| __version__ | целое число<br>__-1__<br>или<br>__от 1 до 40__ | __версия__<br> если не указана или -1, то выбирается наименьшая возможная                                                                    |
-|  __mask__   | целое число<br>__-1__<br>или<br>__от 0 до 7__  | __шаблон маски__<br>если не указан или -1,  то выбирается лучшая маска                                                                       |
+### `makeQRCode(text: string, options?: QROptions): QRCode`
 
-#### 1.2. Дополнительные свойства `options`, содержащие значения параметров формирования изображения
+### `makeQRCode(options: QROptions): QRCode`
 
-|  свойство   |                                      значение                                       | содержание                                                                                                                                   |
-|:-----------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------|
-|  __image__  | регистронезависимая строка<br>__'PNG'__, __'SVG'__, __'HTML'__<br>или<br>__'NONE'__ | __формат изображения__,<br>если не указан, то результат выводится в формате 'PNG',<br>при задании значения 'NONE' - результат не формируется |
-| __modsize__ |                      целое число<br>__-1__<br>или<br>__от 1__                       | __размер модуля<br> `modsize x modsize`__<br>если не указан или -1, то 4                                                                     |
-| __margin__  |                               целое число<br>__от 0__                               | __размер свободной зоны в модулях__,<br>если не указан, то 4 модуля                                                                          |
+Generates a QR code and returns an object with the following properties and methods.
 
-### 2. Возвращаемый объект `qrcode`
+#### `QROptions`
 
-#### 2.1. Свойства `qrcode`
+| Property  | Type                                                 | Default | Description                                                                              |
+|-----------|------------------------------------------------------|---------|------------------------------------------------------------------------------------------|
+| `text`    | `string`                                             | `''`    | The data to encode.                                                                      |
+| `mode`    | `Mode` (`-1 \| 1 \| 2 \| 4`)                         | `-1`    | Encoding mode: `1` = numeric, `2` = alphanumeric, `4` = octet (UTF‑8), `-1` = auto.      |
+| `eccl`    | `Eccl` (`-1 \| 0 \| 1 \| 2 \| 3`)                    | `-1`    | Error correction level: `0` = M, `1` = L, `2` = H, `3` = Q, `-1` = auto (tries H first). |
+| `version` | `number` (`-1 \| 1–40`)                              | `-1`    | QR code version (size). `-1` selects the smallest possible version.                      |
+| `mask`    | `Mask` (`-1 \| 0–7`)                                 | `-1`    | Mask pattern. `-1` selects the best mask automatically.                                  |
+| `image`   | `ImageFormat` (`'PNG' \| 'SVG' \| 'HTML' \| 'NONE'`) | `'PNG'` | Output format. `'NONE'` skips image generation (only matrix is available).               |
+| `modsize` | `number`                                             | `4`     | Module size in pixels (for PNG/SVG). Ignored for `'HTML'`.                               |
+| `margin`  | `number`                                             | `4`     | Quiet zone width in modules.                                                             |
 
-|                    свойство                    |                                   значение                                    | содержание                                                                                                                             |
-|:----------------------------------------------:|:-----------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------|
-|                    __text__                    |                                   заданное                                    | __исходный текст__                                                                                                                     |
-| __mode__<br>__eccl__<b>__version__<br>__mask__ |                        заданное<br>или<br>подобранное                         | __параметры сформированной матрицы QR-кода__                                                                                           |
-|           __modsize__<br>__margin__            |                        заданно<br>или<br>по умолчанию                         | __параметры сформированной матрицы QR-кода__<br>и __параметры изображения QR-кода__                                                    |
-|                   __image__                    |                                   заданное                                    | __формат изображения QR-кода__<br>или<br>__'NONE'__                                                                                    |
-|                   __matrix__                   | __массив [`у`][`х`]__<br>__`у`__`-индекс колонки,`<br>__`х`__`-индекс строки` | __матрица QR-кода__<br>где значение элемента матрицы соответствует цвету изображения модуля:<br> 0 - белый,<br> 1 - черный             |
-|                   __result__                   |                       __HTML элемент__<br>или<br>__''__                       | __изображение QR-кода в заданом формате__<br>или<br>__пустая строка__ в случае ошибки, или когда был задан параметр `image === 'NONE'` |
-|                   __error__                    |                       __имя свойства__<br>или<br>__''__                       | __имя свойства, значение которого вызвало ошибку__<br>или<br> __пустая строка__ при отстутствии ошибок                                 |
-|                __errorSubcode__                |       строка<br>с целочисленным<br>цифроовым __кодом__<br>или<br>__''__       | __код, поясняющий ошибку__<br>или<br>__пустая строка__ при отстутствии ошибок                                                          |
+#### Returned `QRCode` object
 
-<br>
+| Property                       | Type                                                     | Description                                                                                                                                                                                                                 |
+|--------------------------------|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `text`                         | `string`                                                 | The original input text.                                                                                                                                                                                                    |
+| `mode`                         | `Mode`                                                   | The encoding mode used.                                                                                                                                                                                                     |
+| `eccl`                         | `Eccl`                                                   | Error correction level used.                                                                                                                                                                                                |
+| `version`                      | `number`                                                 | QR code version.                                                                                                                                                                                                            |
+| `mask`                         | `Mask`                                                   | Mask pattern applied.                                                                                                                                                                                                       |
+| `matrix`                       | `(number \| null)[][]`                                   | The QR matrix (0 = white, 1 = black, null = reserved areas).                                                                                                                                                                |
+| `modsize`                      | `number`                                                 | Module size actually used (may differ from input if auto).                                                                                                                                                                  |
+| `margin`                       | `number`                                                 | Margin size actually used.                                                                                                                                                                                                  |
+| `result`                       | `HTMLElement \| HTMLCanvasElement \| SVGElement \| null` | The generated image element. `null` if an error occurred or format is `'NONE'`.                                                                                                                                             |
+| `error`                        | `string`                                                 | Error code (empty if no error).                                                                                                                                                                                             |
+| `errorSubcode`                 | `string`                                                 | Additional error details.                                                                                                                                                                                                   |
+| `download(filename?, format?)` | `void`                                                   | Triggers download of the QR code image. If no `filename` given, default is `qrcode.png`, `qrcode.svg`, or `qrcode.html` based on format. If `format` is provided, it temporarily changes the image format for the download. |
 
-#### 2.2. Методы `qrcode`
+#### Changing `image` property
 
-__<p>`qrcode.`image = newImage</p>__
+You can change the output format after generation by assigning a new value to `qr.image`. This will update `qr.result` accordingly.
 
-__`newImage`__<br>новое значение формата изображения<br>
-При изменении текущего формата `qrcode.image` на новое значение `newImage` происходит переформирование изображения.
->Процесс может вызвать ошибку:<br> `qrcode.error === "image"`.
+```typescript
+qr.image = 'SVG'      // qr.result becomes an SVGElement
+qr.image = 'HTML'     // qr.result becomes a HTMLDivElement with CSS Grid
+```
 
-<br>__<p>`qrcode.`download (`filename`, `image`)</p>__ Вызывает скачивание изображения QR-кода в виде файла с именем `filename` в формате `image`.
+---
 
-__`filename`__<br>Имя файла для скачивания изображения, включая расширение.
->Если параметр `filename` не задан или `filename === ''`, то `filename` примает значение по умолчанию:<br>
- -`'qrcode.png'` при `qrcode.image === 'PNG'`<br>
- -`'qrcode.svg'` при `qrcode.image === 'SVG'`<br>
- -`'qrcode.html'` при `qrcode.image === 'HTML'`
+## Error Handling
 
-__`image`__<br>Формат файла изображения QR-кода.
->Если параметр `image` не задан, то приниматся текущее значение `qrcode.image`.
+If an error occurs, `qr.error` contains the name of the property that caused the issue (e.g., `'text'`, `'version'`), and `qr.errorSubcode` gives more details.
 
->Если параметр `image` указан, то до вывода изображение переформируется  ( соответствует методу `qrcode.image = newImage`).
+Common error codes:
 
->Если при переформировании изображения произошла ошибка `qrcode.error !== ""` или задан формат `qrcode.image === 'NONE'` и, соответственно, отсутствует результат `qrcode.result === ''`, то запрос на скачиваение файла не выполняется.
+| `error`     | `errorSubcode` | Meaning                                               |
+|-------------|----------------|-------------------------------------------------------|
+| `'text'`    | `'1'`          | Invalid text format.                                  |
+| `'text'`    | `'2'`          | Empty text.                                           |
+| `'text'`    | `'3'`          | Text contains invalid characters for the chosen mode. |
+| `'mode'`    | `'1'`          | Unsupported encoding mode.                            |
+| `'version'` | `'1'`          | Text too long for any version.                        |
+| `'version'` | `'2'`          | Invalid version number.                               |
+| `'version'` | `'3'`          | Text too long for the specified version.              |
+| `'eccl'`    | `'1'`          | Invalid error correction level.                       |
+| `'mask'`    | `'1'`          | Invalid mask pattern.                                 |
+| `'image'`   | `'1'`          | Unsupported image format.                             |
+| `'modsize'` | `'1'`          | Invalid module size.                                  |
+| `'margin'`  | `'1'`          | Invalid margin size.                                  |
 
-<br>__<p>`qrcode`.clearError()</p>__ Очистка сообщения об ошибке `qrcode.error` и `qrcode.errorSubcode`.
+Additionally, library‑specific error codes:
 
->При наличии ошибок формирования изображения, методы: `qrcode.image = newImage` и `qrcode.download(filename, image)` не работают, пока сообщение не будет обработано и (или) очищено `qrcode.clearError()`
+| `error`                      | Meaning                                                     |
+|------------------------------|-------------------------------------------------------------|
+| `'ERR_TEXT_EMPTY'`           | Text is empty.                                              |
+| `'ERR_INVALID_CHAR'`         | Text contains unsupported characters for the selected mode. |
+| `'ERR_VERSION_OUT_OF_RANGE'` | Invalid version number.                                     |
 
-<br>
+---
 
-#### 2.3. Типы и подкоды ошибок
+## Browser Support
 
-|    error    | errorSubcode | содержание                                            |
-|:-----------:|:------------:|:------------------------------------------------------|
-|  __text__   |    __1__     | недопустимый формат строки для кодирования            |
-|  __text__   |    __2__     | не указан текст для кодирования                       |
-|  __text__   |    __3__     | текст содержит недопустимые символы                   |
-|  __mode__   |    __1__     | недопустимый или неподдерживаемый метод кодирования   |
-| __version__ |    __1__     | слишком длинный текст для кодирования                 |
-| __version__ |    __2__     | недопустимая версия                                   |
-| __version__ |    __3__     | текст слишком длинный для выбранной версии            |
-|  __eccl__   |    __1__     | недопустимый уровень коррекции ошибок                 |
-|  __mask__   |    __1__     | недопустимый шаблон маски                             |
-|  __image__  |    __1__     | недопустимый формат изображения для генерации QR-кода |
-|  __image__  |    __2__     | для вывода в формате PNG необходима поддержка canvas  |
-|  __image__  |    __3__     | недопустимый формат изображения для генерации QR-кода |
-| __modsize__ |    __1__     | недопустимый размер модуля                            |
-| __margin__  |    __1__     | недопустимый размер свободной зоны (в модулях)        |
+| Chrome | Firefox | Edge  | Safari | Opera |
+|--------|---------|-------|--------|-------|
+| ≥ 106  | ≥ 105   | ≥ 106 | ≥ 15   | ≥ 92  |
 
+Works in all modern browsers that support Canvas, SVG, and CSS Grid (for the HTML output). The library itself is pure ECMAScript and does not rely on any polyfills.
 
-<h2>СОВМЕСТИМОСТЬ С БРАУЗЕРАМИ</h2>
-Chrome v.106, Firefox v.105, Яндекс.Браузер v.22, Brave v.1.44, Microsoft Edge v.106
+---
 
-<h2>ПОЛЕЗНЫЕ ССЫЛКИ</h2>
+## Development
 
-__Прототип [qrcode.js](https://github.com/shesek/qruri/blob/master/index.js)__
+### Project Structure
 
+```
+qr-code/
+├── src/
+│   ├── constants.ts         # QR code tables and constants
+│   ├── qr-code-generator.ts # Core QR encoding logic
+│   ├── image-renderer.ts    # Converts matrix to PNG/SVG/HTML
+│   ├── types.ts             # TypeScript definitions
+│   ├── index.ts             # Public API (makeQRCode)
+│   ├── main.ts              # Demo app (Vite)
+│   └── css/                 # Demo styles
+├── test/                    # Unit tests (Vitest + JSDOM)
+├── lib/                     # Build output (library)
+├── dist/                    # Build output (demo)
+├── package.json
+├── tsconfig.json
+├── vite.config.ts           # Demo build config
+└── vite.config.lib.ts       # Library build config
+```
 
-__Учебник__ [QR Code Tutorial](https://www.thonky.com/qr-code-tutorial/introduction)
+### Build Commands
 
-__Habr.com__ [Алгоритм генерации QR-кода](https://habr.com/ru/post/172525/)
+```bash
+# Build library (output to lib/)
+yarn build:lib
 
-__Стандарт__ [Спецификация символики штрихового кода QR Code ISO/IEC 18004:2015](https://meganorm.ru/Data2/1/4293763/4293763455.pdf)
+# Build demo (output to dist/)
+yarn build:demo
+
+# Run development server (demo)
+yarn dev
+
+# Run tests
+yarn test
+
+# Run tests with coverage
+yarn test:coverage
+```
+
+### Testing
+
+The test suite uses [Vitest](https://vitest.dev/) with JSDOM. Run `yarn test` to execute all tests.
+
+---
+
+## License
+
+ISC © [alekstar79](https://github.com/alekstar79)
+
+---
+
+## Useful Links
+
+- **Tutorial** [QR Code Tutorial](https://www.thonky.com/qr-code-tutorial/introduction)
+- **Habr.com** [QR Code generation algorithm](https://habr.com/ru/post/172525/)
+- **Standard** [QR Code ISO/IEC 18004:2015 Barcode Symbol Specification](https://meganorm.ru/Data2/1/4293763/4293763455.pdf)

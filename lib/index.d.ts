@@ -1,2 +1,2 @@
-import { QROptions, QRCode } from './types.ts';
-export declare function makeQRCode(text?: string, options?: QROptions): QRCode;
+import { QRCode, QROptions } from './types';
+export declare function makeQRCode(textOrOptions?: string | QROptions, options?: QROptions): QRCode;

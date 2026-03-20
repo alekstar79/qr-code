@@ -4,7 +4,7 @@ export declare class ImageRenderer {
     private readonly modsize;
     private readonly margin;
     constructor(matrix: (number | null)[][], modsize: number, margin: number);
-    render(format: ImageFormat): HTMLElement | HTMLCanvasElement;
+    render(format: ImageFormat): HTMLElement | HTMLCanvasElement | SVGElement;
     private renderPNG;
     private renderSVG;
     /**

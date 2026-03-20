@@ -17,12 +17,32 @@ const errorContainer = document.getElementById('error-container') as HTMLDivElem
 const downloadBtn = document.getElementById('download-btn') as HTMLButtonElement
 const langEnBtn = document.getElementById('lang-en') as HTMLButtonElement
 const langRuBtn = document.getElementById('lang-ru') as HTMLButtonElement
+const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement
 const appTitle = document.querySelector('#app h1') as HTMLHeadingElement
 
 // --- State ---
 let lastQrCodeResult: ReturnType<typeof makeQRCode> | null = null
-let currentLang: 'en' | 'ru' = 'en'           // Default language
-let activeTooltip: HTMLElement | null = null  // To keep track of the currently open tooltip
+let currentLang: 'en' | 'ru' = 'en'
+let activeTooltip: HTMLElement | null = null
+
+// --- Theme handling ---
+function setTheme(theme: 'dark' | 'light') {
+  if (theme === 'light') {
+    document.documentElement.classList.add('light-theme')
+    themeToggle.textContent = '☀️'
+  } else {
+    document.documentElement.classList.remove('light-theme')
+    themeToggle.textContent = '🌙'
+  }
+  localStorage.setItem('theme', theme)
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const theme = savedTheme || (prefersDark ? 'dark' : 'light')
+  setTheme(theme)
+}
 
 // --- Translations ---
 const translations = {
@@ -97,19 +117,12 @@ const translations = {
 }
 
 // --- Functions ---
-
-/**
- * Updates the UI elements with texts for the selected language.
- * @param lang The language to set ('en' or 'ru').
- */
 function updateUIForLanguage(lang: 'en' | 'ru') {
   currentLang = lang
   const currentTranslations = translations[currentLang]
 
-  // Update main title
   appTitle.textContent = currentTranslations.appTitle
 
-  // Update elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n') as keyof typeof currentTranslations
     if (currentTranslations[key]) {
@@ -117,7 +130,6 @@ function updateUIForLanguage(lang: 'en' | 'ru') {
     }
   })
 
-  // Update option texts in selects
   document.querySelectorAll('#mode-select option').forEach(option => {
     const key = option.getAttribute('data-i18n') as keyof typeof currentTranslations
     if (currentTranslations[key]) {
@@ -137,10 +149,8 @@ function updateUIForLanguage(lang: 'en' | 'ru') {
     }
   })
 
-  // Re-initialize tooltips with new language
   initializeTooltips()
 
-  // Update active language button
   langEnBtn.classList.remove('active')
   langRuBtn.classList.remove('active')
   if (lang === 'en') {
@@ -149,13 +159,9 @@ function updateUIForLanguage(lang: 'en' | 'ru') {
     langRuBtn.classList.add('active')
   }
 
-  // Update HTML lang attribute
   document.documentElement.lang = lang
 }
 
-/**
- * Gathers options from the UI controls.
- */
 function getOptionsFromUI(): QROptions {
   return {
     mode: parseInt(modeSelect.value, 10) as Mode,
@@ -168,14 +174,10 @@ function getOptionsFromUI(): QROptions {
   }
 }
 
-/**
- * Generates and displays the QR code based on current UI settings.
- */
 function generate() {
   const text = textInput.value
   const options = getOptionsFromUI()
 
-  // Clear previous state
   qrCodeContainer.innerHTML = ''
   errorContainer.textContent = ''
   downloadBtn.classList.add('hidden')
@@ -197,9 +199,6 @@ function generate() {
   }
 }
 
-/**
- * Handles the download button click.
- */
 function handleDownload() {
   if (!lastQrCodeResult) return
 
@@ -209,9 +208,6 @@ function handleDownload() {
   lastQrCodeResult.download(filename, selectedFormat)
 }
 
-/**
- * Hides the currently active tooltip.
- */
 function hideActiveTooltip() {
   if (activeTooltip) {
     activeTooltip.setAttribute('aria-hidden', 'true')
@@ -221,11 +217,7 @@ function hideActiveTooltip() {
   }
 }
 
-/**
- * Initializes tooltips by dynamically creating content elements and attaching click listeners.
- */
 function initializeTooltips() {
-  // Clear existing tooltips first
   document.querySelectorAll('.tooltip-content').forEach(content => content.remove())
   hideActiveTooltip()
 
@@ -248,7 +240,6 @@ function initializeTooltips() {
     trigger.setAttribute('aria-describedby', tooltipContentId)
     trigger.appendChild(tooltipContent)
 
-    // Bind once per trigger; the handler re-queries current tooltip content
     if (trigger.getAttribute('data-tooltip-bound') === 'true') return
     trigger.setAttribute('data-tooltip-bound', 'true')
 
@@ -261,7 +252,6 @@ function initializeTooltips() {
       const currentTooltip = trigger.querySelector('.tooltip-content') as HTMLElement | null
       if (!currentTooltip) return
 
-      // Кликнули по самой подсказке (контент внутри trigger) — не переключаем её, чтобы не скрывать.
       const targetNode = event.target as Node | null
       if (targetNode && currentTooltip.contains(targetNode)) {
         return
@@ -294,18 +284,19 @@ generateBtn.addEventListener('click', generate)
 downloadBtn.addEventListener('click', handleDownload)
 langEnBtn.addEventListener('click', () => updateUIForLanguage('en'))
 langRuBtn.addEventListener('click', () => updateUIForLanguage('ru'))
+themeToggle.addEventListener('click', () => {
+  const isLight = document.documentElement.classList.contains('light-theme')
+  setTheme(isLight ? 'dark' : 'light')
+})
 
-// Global click listener to hide tooltips when clicking outside
 document.addEventListener('click', (event) => {
   if (!activeTooltip) return
 
   const target = event.target as Node | null
   if (!target) return
 
-  // Не скрываем подсказку, если кликнули внутри текущей подсказки.
   if (activeTooltip.contains(target)) return
 
-  // Не скрываем, если кликнули по самому триггеру текущей подсказки.
   const triggerEl = activeTooltip.parentElement
   if (triggerEl && triggerEl.contains(target)) return
 
@@ -313,8 +304,8 @@ document.addEventListener('click', (event) => {
 })
 
 // --- Initial Setup ---
-// Determine initial language from browser or default to 'en'
-const browserLang = navigator.language.startsWith('ru') ? 'ru' : 'en'
+initTheme()
+const browserLang = 'en'
 updateUIForLanguage(browserLang)
-initializeTooltips() // Initialize tooltips on page load
-generate() // Generate a QR code on page load
+initializeTooltips()
+generate()

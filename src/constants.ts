@@ -27,6 +27,13 @@ export const ECCLEVEL_H = 2
 export const ECCLEVEL_Q = 3
 
 /**
+ * Error codes
+ */
+export const ERR_TEXT_EMPTY = 'ERR_TEXT_EMPTY'
+export const ERR_INVALID_CHAR = 'ERR_INVALID_CHAR'
+export const ERR_VERSION_OUT_OF_RANGE = 'ERR_VERSION_OUT_OF_RANGE'
+
+/**
  * Checks if a given ECC level is valid.
  * @param eccl The ECC level to check.
  * @returns True if the ECC level is valid, false otherwise.

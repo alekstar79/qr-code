@@ -8,7 +8,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    copyPublicDir: false,
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {

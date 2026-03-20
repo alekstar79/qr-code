@@ -1,14 +1,47 @@
 :root {
+  /* Dark theme (default) */
+  --bg-primary: #242424;
+  --bg-secondary: #2f2f2f;
+  --bg-control: #333;
+  --text-primary: rgba(255, 255, 255, 0.87);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --border-color: #555;
+  --button-bg: #1a1a1a;
+  --button-hover-border: #646cff;
+  --tooltip-bg: rgba(20, 20, 20, 0.95);
+  --tooltip-border: rgba(255, 255, 255, 0.18);
+  --tooltip-text: rgba(255, 255, 255, 0.95);
+  --error-color: #ff6b6b;
+  --qr-bg: #fff;
+  --qr-module-white: #fff;
+  --qr-module-black: #000;
+  --qr-total-modules: 1;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.light-theme {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #e0e0e0;
+  --bg-control: #f1f1f1;
+  --text-primary: #213547;
+  --text-secondary: #4a5568;
+  --border-color: #cbd5e0;
+  --button-bg: #f9f9f9;
+  --button-hover-border: #646cff;
+  --tooltip-bg: rgba(30, 30, 30, 0.95);
+  --tooltip-border: rgba(0, 0, 0, 0.2);
+  --tooltip-text: #fff;
+  --error-color: #e53e3e;
+  --qr-bg: #fff;
+  --qr-module-white: #fff;
+  --qr-module-black: #000;
 }
 
 body {
@@ -17,6 +50,8 @@ body {
   justify-content: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 #app {
@@ -33,10 +68,16 @@ body {
   margin-bottom: 2rem;
 }
 
+.controls-right {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .language-switcher .lang-button {
-  background-color: #333;
-  color: #fff;
-  border: 1px solid #555;
+  background-color: var(--button-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   padding: 0.5em 1em;
   cursor: pointer;
   border-radius: 4px;
@@ -46,6 +87,20 @@ body {
 .language-switcher .lang-button.active {
   background-color: #646cff;
   border-color: #646cff;
+}
+
+.theme-button {
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  font-size: 1.2em;
+  line-height: 1;
+  color: var(--text-primary);
+}
+.theme-button:hover {
+  border-color: var(--button-hover-border);
 }
 
 .container {
@@ -61,14 +116,14 @@ body {
   gap: 1rem;
   padding: 1.5rem;
   border-radius: 8px;
-  background-color: #2f2f2f;
+  background-color: var(--bg-secondary);
   text-align: left;
 }
 
 .control-group {
   display: flex;
   flex-direction: column;
-  position: relative; /* Needed for absolute positioning of tooltips */
+  position: relative;
 }
 
 .control-group label {
@@ -77,6 +132,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: var(--text-primary);
 }
 
 textarea,
@@ -85,10 +141,19 @@ input {
   width: 100%;
   padding: 0.5rem;
   border-radius: 4px;
-  border: 1px solid #555;
-  background-color: #333;
-  color: white;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-control);
+  color: var(--text-primary);
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+textarea:focus,
+select:focus,
+input:focus {
+  outline: none;
+  border-color: var(--button-hover-border);
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
 }
 
 textarea {
@@ -103,13 +168,13 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--button-bg);
   cursor: pointer;
   transition: border-color 0.25s;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--text-primary);
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--button-hover-border);
 }
 button:focus,
 button:focus-visible {
@@ -127,7 +192,7 @@ button:focus-visible {
 #qr-code-container {
   width: 300px;
   height: 300px;
-  background-color: #fff;
+  background-color: var(--qr-bg);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -138,45 +203,39 @@ button:focus-visible {
 
 #qr-code-container svg,
 #qr-code-container canvas {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-/* --- The Final, Correct CSS Grid Solution for HTML QR Code --- */
-
+/* HTML QR Code Grid */
 #qr-code-container .qrcode {
-    display: grid;
-    /* The --qr-total-modules variable is set by JavaScript in image-renderer.ts */
-    grid-template-columns: repeat(var(--qr-total-modules), 1fr);
-    grid-template-rows: repeat(var(--qr-total-modules), 1fr);
-
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 1 / 1; /* Ensures the grid container is square */
-
-    /* Background for the QR code area, including margins */
-    background-color: #fff;
-    box-sizing: border-box;
-    padding: 0; /* No padding here, margins are part of the grid */
+  display: grid;
+  grid-template-columns: repeat(var(--qr-total-modules), 1fr);
+  grid-template-rows: repeat(var(--qr-total-modules), 1fr);
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--qr-bg);
+  box-sizing: border-box;
+  padding: 0;
 }
 
 #qr-code-container .qr-module {
-    /* Default module color (white) */
-    background-color: #fff;
+  background-color: var(--qr-module-white);
 }
 
 #qr-code-container .qr-module.black {
-    background-color: #000;
+  background-color: var(--qr-module-black);
 }
 
-/* --- Tooltip Styles --- */
+/* Tooltip Styles */
 .tooltip-trigger {
   cursor: pointer;
   font-size: 0.75em;
-  background-color: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  background-color: rgba(128, 128, 128, 0.2);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   width: 1.25em;
   height: 1.25em;
@@ -184,43 +243,40 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  position: relative;   /* For positioning the tooltip content */
-  user-select: none;    /* Prevent text selection */
-  margin-left: 0.35rem; /* Ensure spacing */
+  position: relative;
+  user-select: none;
+  margin-left: 0.35rem;
   line-height: 1;
   padding: 0;
 }
 
-/* Intentionally no focus outline on tooltip trigger to match requested styling */
-
 .tooltip-content {
-  visibility: hidden; /* Hidden by default */
-  opacity: 0; /* Hidden by default */
-  background-color: rgba(20, 20, 20, 0.75);
-  color: rgba(255, 255, 255, 0.95);
+  visibility: hidden;
+  opacity: 0;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
   text-align: left;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--tooltip-border);
   border-radius: 8px;
   padding: 8px 10px;
   position: absolute;
   z-index: 1000;
-  bottom: 125%; /* Position above the trigger */
+  bottom: 125%;
   left: 50%;
   transform: translateX(-50%);
   white-space: normal;
-  width: 230px; /* Max width for readability */
+  width: 230px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(6px);
-  transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
+  transition: opacity 0.3s, visibility 0.3s;
   font-size: 0.9em;
 }
 
-.tooltip-content.active { /* Class to make it visible */
+.tooltip-content.active {
   visibility: visible;
   opacity: 1;
 }
 
-/* Arrow for the tooltip */
 .tooltip-content::after {
   content: "";
   position: absolute;
@@ -229,13 +285,12 @@ button:focus-visible {
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: rgba(20, 20, 20, 0.75) transparent transparent transparent;
+  border-color: var(--tooltip-bg) transparent transparent transparent;
 }
-
 
 #error-container {
   margin-top: 1rem;
-  color: #ff6b6b;
+  color: var(--error-color);
   font-weight: bold;
   min-height: 24px;
 }
@@ -248,7 +303,7 @@ button:focus-visible {
   display: none;
 }
 
-/* --- Responsive Design --- */
+/* Responsive Design */
 @media (max-width: 768px) {
   #app {
     padding: 1rem;
@@ -262,7 +317,7 @@ button:focus-visible {
   }
 
   .container {
-    grid-template-columns: 1fr; /* Single column layout */
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
@@ -271,24 +326,24 @@ button:focus-visible {
   }
 
   #qr-code-container {
-    width: min(80vw, 300px);  /* Responsive width, max 300px */
-    height: min(80vw, 300px); /* Responsive height, max 300px */
+    width: min(80vw, 300px);
+    height: min(80vw, 300px);
     padding: 0.5rem;
   }
 
   .tooltip-content {
-    width: 200px; /* Smaller width for mobile tooltips */
-    bottom: auto; /* Reset bottom positioning */
-    top: 125%;    /* Position below the trigger */
-    left: 0;      /* Align to the left of the trigger */
-    transform: translateX(0); /* Reset transform */
+    width: 200px;
+    bottom: auto;
+    top: 125%;
+    left: 0;
+    transform: translateX(0);
   }
 
   .tooltip-content::after {
-    top: -5px;  /* Arrow points upwards */
-    left: 15px; /* Adjust arrow position */
+    top: -5px;
+    left: 15px;
     margin-left: 0;
-    border-color: transparent transparent #333 transparent;
+    border-color: transparent transparent var(--tooltip-bg) transparent;
   }
 }
 
@@ -296,7 +351,8 @@ button:focus-visible {
   h1 {
     font-size: 1.8em;
   }
-  .language-switcher .lang-button {
+  .language-switcher .lang-button,
+  .theme-button {
     padding: 0.4em 0.8em;
     font-size: 0.9em;
   }

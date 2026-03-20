@@ -3,11 +3,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 const downloadMock = vi.fn()
 const makeQRCodeMock = vi.fn()
 
-// --- THE FIX ---
-// Mock the module that is DIRECTLY imported by `main.ts`.
 // The path is relative to the test file itself.
 vi.mock('../src/index', () => ({
-  makeQRCode: makeQRCodeMock,
+  makeQRCode: makeQRCodeMock
 }))
 
 describe('QR code generation and download', () => {

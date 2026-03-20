@@ -1,16 +1,18 @@
+import { Eccl, ImageFormat, Mode, QRCode, QROptions } from './types'
+import { QRCodeGenerator } from './qr-code-generator'
+import { ImageRenderer } from './image-renderer'
 import {
-  // isEccl,
   DEFAULT_MARGIN,
   DEFAULT_MODSIZE,
   ECCLEVEL_H,
+  ERR_INVALID_CHAR,
+  ERR_TEXT_EMPTY,
+  ERR_VERSION_OUT_OF_RANGE,
   IMAGE_FORMATS,
   MODE_ALPHANUMERIC,
   MODE_NUMERIC,
   MODE_OCTET,
-} from './constants.ts'
-import { ImageRenderer } from './image-renderer.ts'
-import { QRCodeGenerator } from './qr-code-generator.ts'
-import { Eccl, ImageFormat, Mode, QROptions, QRCode } from './types.ts'
+} from './constants'
 
 class QROptionsError extends Error {
   constructor(public setting: string, public subcode: string) {
@@ -18,11 +20,6 @@ class QROptionsError extends Error {
     this.name = 'QROptionsError'
   }
 }
-
-// Error codes
-export const ERR_TEXT_EMPTY = 'ERR_TEXT_EMPTY'
-export const ERR_INVALID_CHAR = 'ERR_INVALID_CHAR'
-export const ERR_VERSION_OUT_OF_RANGE = 'ERR_VERSION_OUT_OF_RANGE'
 
 const notInteger = (value: number) => value !== Math.floor(value);
 
@@ -222,7 +219,7 @@ export function makeQRCode(textOrOptions: string | QROptions = '', options: QROp
   // This block is already handled above, so we can remove this duplicate
 
   const renderer = new ImageRenderer(qrcode.matrix, finalModsize, finalMargin)
-  let result: HTMLElement | HTMLCanvasElement | null = null
+  let result: HTMLElement | HTMLCanvasElement | SVGElement | null = null
 
   if (!qrcode.error) {
     result = renderer.render(image)
