@@ -1,4 +1,4 @@
-# QR Code Generator
+# QR Code Generator TS
 
 [![npm version](https://img.shields.io/npm/v/@alekstar79/qr-code.svg)](https://www.npmjs.com/package/@alekstar79/qr-code)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
@@ -38,10 +38,8 @@ npm install @alekstar79/qr-code-generator
 Then import it in your project:
 
 ```typescript
-import { makeQRCode } from '@alekstar79/qr-code-generator'
+import { makeQRCode } from '@alekstar79/qr-code'
 ```
-
-> **Note**: The CDN path points to the compiled ESM module. For legacy script tags, you can also download the file from the [releases](https://github.com/alekstar79/qr-code/releases) page.
 
 ---
 
@@ -50,7 +48,7 @@ import { makeQRCode } from '@alekstar79/qr-code-generator'
 ### Basic Example
 
 ```typescript
-import { makeQRCode } from '@alekstar79/qr-code-generator'
+import { makeQRCode } from '@alekstar79/qr-code'
 
 const qr = makeQRCode('https://example.com')
 document.body.appendChild(qr.result) // result is an HTMLCanvasElement
@@ -59,7 +57,7 @@ document.body.appendChild(qr.result) // result is an HTMLCanvasElement
 ### With Options
 
 ```typescript
-import { makeQRCode, QROptions } from '@alekstar79/qr-code-generator'
+import { makeQRCode, QROptions } from '@alekstar79/qr-code'
 
 const options: QROptions = {
   mode: -1,           // auto (numeric, alphanumeric, or octet)
@@ -78,7 +76,7 @@ document.getElementById('qr-container')!.appendChild(qr.result)
 ### Using the Returned Object
 
 ```typescript
-import { makeQRCode, QRCode } from '@alekstar79/qr-code-generator'
+import { makeQRCode, QRCode } from '@alekstar79/qr-code'
 
 const qr: QRCode = makeQRCode('My data')
 
