@@ -1,5 +1,5 @@
-import { makeQRCode } from './index.ts'
-import { Eccl, ImageFormat, Mode, Mask, QROptions } from './types.ts'
+import { makeQRCode } from './index'
+import { Eccl, ImageFormat, Mode, Mask, QROptions } from './types'
 import './css/style.css'
 
 // --- DOM Elements ---
