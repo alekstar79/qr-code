@@ -20,8 +20,9 @@ export class ImageRenderer {
       case 'HTML':
         return this.renderHTML()
       case 'NONE':
-        // Return an empty div for NONE case to maintain type consistency
         return document.createElement('div')
+      default:
+        return this.renderPNG()
     }
   }
 

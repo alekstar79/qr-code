@@ -19,6 +19,11 @@ class QROptionsError extends Error {
   }
 }
 
+// Error codes
+export const ERR_TEXT_EMPTY = 'ERR_TEXT_EMPTY'
+export const ERR_INVALID_CHAR = 'ERR_INVALID_CHAR'
+export const ERR_VERSION_OUT_OF_RANGE = 'ERR_VERSION_OUT_OF_RANGE'
+
 const notInteger = (value: number) => value !== Math.floor(value);
 
 const testText = (text: unknown): QROptionsError | null => {
@@ -107,7 +112,11 @@ const testVersion = (qrcode: QRCodeGenerator, ecclChoice: boolean): QROptionsErr
   return null
 }
 
-export function makeQRCode(text = '', options: QROptions = {}): QRCode {
+export function makeQRCode(textOrOptions: string | QROptions = '', options: QROptions = {}): QRCode {
+  // Handle both string and options object as first parameter
+  const text = typeof textOrOptions === 'string' ? textOrOptions : textOrOptions.text || ''
+  const opts = typeof textOrOptions === 'object' ? textOrOptions : options
+
   const {
     mode = -1,
     eccl = -1,
@@ -116,19 +125,20 @@ export function makeQRCode(text = '', options: QROptions = {}): QRCode {
     image = 'PNG',
     modsize = -1,
     margin = -1,
-  } = options
+  } = opts
 
   const qrcode = new QRCodeGenerator(text, mode, eccl, version, mask)
   let finalModsize = modsize
   let finalMargin = margin
 
   let optionsError: QROptionsError | null = null
+  let modeResult: Mode | QROptionsError = -1
 
   const textError = testText(text)
   if (textError) {
     optionsError = textError
   } else {
-    const modeResult = testMode(mode, text)
+    modeResult = testMode(mode, text)
     if (modeResult instanceof QROptionsError) {
       optionsError = modeResult
     } else {
@@ -175,13 +185,48 @@ export function makeQRCode(text = '', options: QROptions = {}): QRCode {
     }
   }
 
+  // Map internal error codes to public error codes
   if (optionsError) {
-    qrcode.error = optionsError.setting
+    switch (optionsError.setting) {
+      case 'text':
+        switch (optionsError.subcode) {
+          case '2':
+            qrcode.error = ERR_TEXT_EMPTY
+            break
+          case '3':
+            qrcode.error = ERR_INVALID_CHAR
+            break
+          default:
+            qrcode.error = optionsError.setting
+        }
+        break
+      case 'mode':
+        qrcode.error = ERR_INVALID_CHAR
+        break
+      case 'version':
+        qrcode.error = ERR_VERSION_OUT_OF_RANGE
+        break
+      default:
+        qrcode.error = optionsError.setting
+    }
     qrcode.errorSubcode = optionsError.subcode
+  } else {
+    // Ensure the mode and eccl are correctly set in the result
+    qrcode.eccl = eccl < 0 ? qrcode.eccl : eccl
+    // Set the mode from the test result
+    if (modeResult !== -1 && !(modeResult instanceof QROptionsError)) {
+      qrcode.mode = modeResult as Mode
+    }
   }
 
+  // This block is already handled above, so we can remove this duplicate
+
   const renderer = new ImageRenderer(qrcode.matrix, finalModsize, finalMargin)
-  const result = qrcode.error ? null : renderer.render(image)
+  let result: HTMLElement | HTMLCanvasElement | null = null
+
+  if (!qrcode.error) {
+    result = renderer.render(image)
+  }
 
   const download = (filename = '', downloadImage: ImageFormat = image) => {
     const content = renderer.render(downloadImage)

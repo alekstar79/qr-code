@@ -66,6 +66,10 @@ describe('demo tooltips', () => {
         Text
         <span class="tooltip-trigger" data-tooltip-key="textInput" role="button" tabindex="0" aria-expanded="false">?</span>
       </label>
+      <label for="mode-select">
+        Mode
+        <span class="tooltip-trigger" data-tooltip-key="modeSelect" role="button" tabindex="0" aria-expanded="false">?</span>
+      </label>
     `
 
     // Import after DOM is ready (main.ts is executed on import).
@@ -101,5 +105,49 @@ describe('demo tooltips', () => {
     document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     expect(tooltipContent.classList.contains('active')).toBe(false)
   })
-})
 
+  it('should toggle tooltip with keyboard (Enter and Space)', () => {
+    const trigger = document.querySelector('.tooltip-trigger[data-tooltip-key="textInput"]') as HTMLElement
+    const tooltipContent = trigger.querySelector('.tooltip-content') as HTMLElement
+    expect(tooltipContent).toBeTruthy()
+
+    // Open with Enter
+    trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    expect(tooltipContent.classList.contains('active')).toBe(true)
+
+    // Close with Space
+    trigger.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    expect(tooltipContent.classList.contains('active')).toBe(false)
+  })
+
+  it('should toggle tooltip on trigger click', () => {
+    const trigger = document.querySelector('.tooltip-trigger[data-tooltip-key="textInput"]') as HTMLElement
+    const tooltipContent = trigger.querySelector('.tooltip-content') as HTMLElement
+    expect(tooltipContent).toBeTruthy()
+
+    // Open
+    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(tooltipContent.classList.contains('active')).toBe(true)
+
+    // Close
+    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(tooltipContent.classList.contains('active')).toBe(false)
+  })
+
+  it('should switch between tooltips, closing the previous one', () => {
+    const trigger1 = document.querySelector('.tooltip-trigger[data-tooltip-key="textInput"]') as HTMLElement
+    const tooltipContent1 = trigger1.querySelector('.tooltip-content') as HTMLElement
+    const trigger2 = document.querySelector('.tooltip-trigger[data-tooltip-key="modeSelect"]') as HTMLElement
+    const tooltipContent2 = trigger2.querySelector('.tooltip-content') as HTMLElement
+
+    // Open first tooltip
+    trigger1.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(tooltipContent1.classList.contains('active')).toBe(true)
+    expect(tooltipContent2.classList.contains('active')).toBe(false)
+
+    // Open second tooltip, first should close
+    trigger2.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(tooltipContent1.classList.contains('active')).toBe(false)
+    expect(tooltipContent2.classList.contains('active')).toBe(true)
+  })
+})

@@ -6,6 +6,7 @@ export type Mask = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | -1;
 export type ImageFormat = (typeof IMAGE_FORMATS)[number];
 
 export interface QROptions {
+  text?: string;
   mode?: Mode;
   eccl?: Eccl;
   version?: number;
