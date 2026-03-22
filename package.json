@@ -48,6 +48,7 @@
     "prepublishOnly": "npm run build:lib"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^20.12.12",
     "@vitest/coverage-v8": "^2.0.4",
     "canvas": "^2.11.2",

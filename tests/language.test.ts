@@ -1,58 +1,27 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const makeQRCodeMock = vi.fn(() => ({
-  text: 'mock',
-  mode: -1,
-  eccl: -1,
-  version: 1,
-  mask: -1,
-  matrix: [],
-  modsize: 4,
-  margin: 4,
-  error: '',
-  errorSubcode: '',
-  result: document.createElement('div'),
-  download: vi.fn(),
+const makeQRCodeMock = vi.fn()
+
+vi.mock('../src/index', () => ({
+  makeQRCode: makeQRCodeMock
 }))
 
-vi.mock('../src/lib', () => {
-  return {
-    makeQRCode: makeQRCodeMock,
-  }
-})
-
 describe('language switching', () => {
-  beforeAll(async () => {
-    Object.defineProperty(navigator, 'language', { value: 'en', configurable: true })
-
-    document.body.innerHTML = `
-      <div id="app">
-        <h1></h1>
-      </div>
-
-      <textarea id="text-input">hello</textarea>
-      <select id="mode-select">
-        <option value="-1" selected data-i18n="autoOption">Auto</option>
-      </select>
-      <select id="eccl-select">
-        <option value="2" selected data-i18n="ecclHOption">High (H)</option>
-      </select>
-      <input id="version-input" type="number" value="-1" />
-      <input id="mask-input" type="number" value="-1" />
-      <select id="image-format-select">
-        <option value="SVG" selected data-i18n="svgOption">SVG</option>
-      </select>
-      <input id="modsize-input" type="number" value="8" />
-      <input id="margin-input" type="number" value="4" />
-
-      <button id="generate-btn" data-i18n="generateButton">Generate</button>
-      <div id="qr-code-container"></div>
-      <div id="error-container"></div>
-      <button id="download-btn" class="hidden" data-i18n="downloadButton">Download</button>
-
-      <button id="lang-en" class="lang-button active">EN</button>
-      <button id="lang-ru" class="lang-button">RU</button>
-    `
+  beforeEach(async () => {
+    makeQRCodeMock.mockImplementation(() => ({
+      text: 'mock',
+      mode: -1,
+      eccl: -1,
+      version: 1,
+      mask: -1,
+      matrix: [],
+      modsize: 4,
+      margin: 4,
+      error: '',
+      errorSubcode: '',
+      result: document.createElement('div'),
+      download: vi.fn(),
+    }))
 
     await import('../src/main')
   })

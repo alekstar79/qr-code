@@ -23,8 +23,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["vitest/globals"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src", "tests", "vite.config.ts", "vite.config.lib.ts"],
   "exclude": ["node_modules", "dist"]
 }
